@@ -11,8 +11,8 @@ screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption("Two-player Chess")
 
 # Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+WHITE = (235,236,208,255)
+BLACK = (115,149,82,255)
 
 # Chessboard setup
 BOARD_SIZE = 600
