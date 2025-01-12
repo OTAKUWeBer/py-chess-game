@@ -75,6 +75,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:  # Check if the ESC key is pressed
+                running = False
 
     screen.fill((200, 200, 200))  # Background color
     draw_chessboard()
