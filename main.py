@@ -21,25 +21,25 @@ SQUARE_SIZE = BOARD_SIZE // 8
 X_OFFSET = (WIDTH - BOARD_SIZE) // 2
 Y_OFFSET = (HEIGHT - BOARD_SIZE) // 2
 
-# Load pieces
+# Load pieces with updated filenames
 pieces = {}
-for name, (filename, size) in {
-    "w_pawn": ("pawn-w.png", SQUARE_SIZE),
-    "w_rook": ("rook-w.png", SQUARE_SIZE),
-    "w_knight": ("knight-w.png", SQUARE_SIZE),
-    "w_bishop": ("bishop-w.png", SQUARE_SIZE),
-    "w_queen": ("queen-w.png", SQUARE_SIZE),
-    "w_king": ("king-w.png", SQUARE_SIZE),
-    "b_pawn": ("pawn-b.png", SQUARE_SIZE),
-    "b_rook": ("rook-b.png", SQUARE_SIZE),
-    "b_knight": ("knight-b.png", SQUARE_SIZE),
-    "b_bishop": ("bishop-b.png", SQUARE_SIZE),
-    "b_queen": ("queen-b.png", SQUARE_SIZE),
-    "b_king": ("king-b.png", SQUARE_SIZE),
+for name, filename in {
+    "w_pawn": "white-pawn.png",
+    "w_rook": "white-rook.png",
+    "w_knight": "white-knight.png",
+    "w_bishop": "white-bishop.png",
+    "w_queen": "white-queen.png",
+    "w_king": "white-king.png",
+    "b_pawn": "black-pawn.png",
+    "b_rook": "black-rook.png",
+    "b_knight": "black-knight.png",
+    "b_bishop": "black-bishop.png",
+    "b_queen": "black-queen.png",
+    "b_king": "black-king.png",
 }.items():
     image_path = os.path.join("assets/pieces", filename)  # Ensure the path to images is correct
     image = pygame.image.load(image_path)
-    pieces[name] = pygame.transform.scale(image, (size, size))  # Scale the image to fit the square
+    pieces[name] = pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))  # Scale the image
 
 # Initial positions of pieces on the chessboard
 initial_positions = {
