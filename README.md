@@ -22,8 +22,8 @@ To run this project, you need:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/OTAKUWeBer/chess.git
-   cd chess
+   git clone https://github.com/OTAKUWeBer/py-chess-game.git
+   cd py-chess-game
    ```
 
 2. Install the required dependencies:
