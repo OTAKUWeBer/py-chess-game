@@ -18,6 +18,7 @@ WHITE = (235, 236, 208)
 BLACK = (115, 149, 82)
 HIGHLIGHT = (255, 0, 0)  # Color to show valid moves
 DOT_COLOR = (0, 255, 0)  # Color for move destination dots
+LAST_MOVE_COLOR = (245,246,129,255)  # Yellow for last move background
 
 # Chessboard setup
 BOARD_SIZE = 600
@@ -50,12 +51,19 @@ black_images = load_piece_images("black")
 board = chess.Board()
 
 # Function to draw the chessboard and labels (like 'a', 'b', etc. for columns)
-def draw_chessboard_with_labels():
+def draw_chessboard_with_labels(last_move=None):
     for row in range(8):
         for col in range(8):
             color = WHITE if (row + col) % 2 == 0 else BLACK  # Alternate square colors
             x = X_OFFSET + col * SQUARE_SIZE
             y = Y_OFFSET + row * SQUARE_SIZE
+
+            # If it's part of the last move, draw the background with a yellow color
+            if last_move:
+                from_square, to_square = last_move
+                if chess.square(col, 7 - row) == from_square or chess.square(col, 7 - row) == to_square:
+                    color = LAST_MOVE_COLOR  # Set the background color to yellow
+
             pygame.draw.rect(screen, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
             
             # Draw column letters at the bottom and row numbers on the left
@@ -97,7 +105,7 @@ def draw_valid_moves(valid_moves):
 
 # Function to handle mouse clicks
 def handle_click(pos):
-    global selected_square, valid_moves
+    global selected_square, valid_moves, last_move
 
     col, row = (pos[0] - X_OFFSET) // SQUARE_SIZE, (pos[1] - Y_OFFSET) // SQUARE_SIZE
     square = chess.square(col, 7 - row)  # Convert click position to board square
@@ -113,6 +121,7 @@ def handle_click(pos):
             move = chess.Move(selected_square, square)
             if move in board.legal_moves:
                 board.push(move)  # Make the move
+                last_move = (selected_square, square)  # Save the last move
             selected_square = None  # Deselect the piece
             valid_moves = []  # Clear valid moves
         else:
@@ -177,6 +186,7 @@ clock = pygame.time.Clock()
 running = True
 selected_square = None  # Initialize the variable here
 valid_moves = []
+last_move = None  # Variable to store the last move
 
 while running:
     for event in pygame.event.get():
@@ -190,7 +200,7 @@ while running:
                 valid_moves = handle_click(event.pos)
 
     screen.fill((200, 200, 200))  # Set background color
-    draw_chessboard_with_labels()
+    draw_chessboard_with_labels(last_move)  # Pass the last move to draw it
     draw_pieces()
     draw_valid_moves(valid_moves)  # Show valid move dots
     draw_checkmate_indicator()  # Show check or checkmate
