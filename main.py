@@ -22,6 +22,9 @@ SQUARE_SIZE = BOARD_SIZE // 8
 X_OFFSET = (WIDTH - BOARD_SIZE) // 2
 Y_OFFSET = (HEIGHT - BOARD_SIZE) // 2
 
+# Font for labels
+font = pygame.font.SysFont("Arial", 18)
+
 piece_image_path = "assets/pieces"
 
 # Load pieces
@@ -45,14 +48,32 @@ white_locations = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7
 black_pieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'] + ['pawn'] * 8
 black_locations = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)] + [(i, 1) for i in range(8)]
 
-# Draw the chessboard
-def draw_chessboard():
+# Draw the chessboard with labels
+def draw_chessboard_with_labels():
     for row in range(8):
         for col in range(8):
             color = WHITE if (row + col) % 2 == 0 else BLACK
             x = X_OFFSET + col * SQUARE_SIZE
             y = Y_OFFSET + row * SQUARE_SIZE
             pygame.draw.rect(screen, color, (x, y, SQUARE_SIZE, SQUARE_SIZE))
+            
+            # Lable color
+            label_color = BLACK if color == WHITE else WHITE
+            
+            # Draw labels
+            if row == 7:  # Bottom row (letters)
+                label = chr(97 + col)  # 'a' to 'h'
+                label_surface = font.render(label, True, label_color)
+                label_x = x + SQUARE_SIZE // 2 - label_surface.get_width() + 35
+                label_y = y + SQUARE_SIZE - label_surface.get_height() -5
+                screen.blit(label_surface, (label_x, label_y))
+
+            if col == 0:  # Leftmost column (numbers)
+                label = str(8 - row)  # '1' to '8'
+                label_surface = font.render(label, True, label_color)
+                label_x = x + 5  # Slight padding inside the square
+                label_y = y + SQUARE_SIZE // 2 - label_surface.get_height() -10
+                screen.blit(label_surface, (label_x, label_y))
 
 # Draw pieces
 def draw_pieces():
@@ -79,7 +100,7 @@ while running:
                 running = False
 
     screen.fill((200, 200, 200))  # Background color
-    draw_chessboard()
+    draw_chessboard_with_labels()
     draw_pieces()
     pygame.display.flip()
     clock.tick(FPS)
