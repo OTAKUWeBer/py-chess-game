@@ -1,0 +1,2 @@
+
+            if last_move:

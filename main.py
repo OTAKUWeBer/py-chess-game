@@ -1,16 +1,20 @@
 import pygame
 import os
 import chess
+import sys
 
 # Start Pygame
 pygame.init()
 
+# Get screen dimensions
+info = pygame.display.Info()
+SCREEN_WIDTH, SCREEN_HEIGHT = info.current_w, info.current_h
+
 # Set the size of the screen and the frame rate
-WIDTH, HEIGHT = 600, 600
 FPS = 60
 
 # Create the screen and set the title
-screen = pygame.display.set_mode([WIDTH, HEIGHT])
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Two-player Chess")
 
 # Colors for board and pieces
@@ -18,13 +22,13 @@ WHITE = (235, 236, 208)
 BLACK = (115, 149, 82)
 HIGHLIGHT = (255, 0, 0)  # Color to show valid moves
 DOT_COLOR = (0, 255, 0)  # Color for move destination dots
-LAST_MOVE_COLOR = (245,246,129,255)  # Yellow for last move background
+LAST_MOVE_COLOR = (245, 246, 129, 255)  # Yellow for last move background
 
-# Chessboard setup
-BOARD_SIZE = 600
+# Chessboard setup (dynamic size based on screen)
+BOARD_SIZE = min(SCREEN_WIDTH, SCREEN_HEIGHT) - 50  # Leave some margin for the UI
 SQUARE_SIZE = BOARD_SIZE // 8
-X_OFFSET = (WIDTH - BOARD_SIZE) // 2  # Centering the board
-Y_OFFSET = (HEIGHT - BOARD_SIZE) // 2  # Centering the board
+X_OFFSET = (SCREEN_WIDTH - BOARD_SIZE) // 2  # Centering the board
+Y_OFFSET = (SCREEN_HEIGHT - BOARD_SIZE) // 2  # Centering the board
 
 # Font for labels on the board (like 'a', 'b', 'c', etc.)
 font = pygame.font.SysFont("Arial", 18)
@@ -49,6 +53,13 @@ black_images = load_piece_images("black")
 
 # Initialize the chessboard with python-chess
 board = chess.Board()
+
+# def handle_pawn_promotion(move):
+#     """Handles pawn promotion when a pawn reaches the last rank."""
+#     if move.promotion:
+#         piece_type = move.promotion
+#         board.set_piece_at(move.to_square, chess.Piece(piece_type, move.color))
+#         board.remove_piece_at(move.from_square)
 
 # Function to draw the chessboard and labels (like 'a', 'b', etc. for columns)
 def draw_chessboard_with_labels(last_move=None):
@@ -116,11 +127,11 @@ def handle_click(pos):
             selected_square = square
             valid_moves = [move.to_square for move in board.legal_moves if move.from_square == selected_square]  # Get all valid moves for the piece
     else:
-        # If a piece is selected and a valid move is clicked
         if square in valid_moves:
             move = chess.Move(selected_square, square)
             if move in board.legal_moves:
                 board.push(move)  # Make the move
+                # handle_pawn_promotion(move)  # Handle the promotion
                 last_move = (selected_square, square)  # Save the last move
             selected_square = None  # Deselect the piece
             valid_moves = []  # Clear valid moves
@@ -133,7 +144,6 @@ def handle_click(pos):
 # Function to draw check or checkmate indicator
 def draw_checkmate_indicator():
     if board.is_check():
-        # Draw a red border around the king if it's in check
         for square in chess.SQUARES:
             piece = board.piece_at(square)
             if piece and piece.piece_type == chess.KING and piece.color == board.turn:
@@ -143,7 +153,6 @@ def draw_checkmate_indicator():
                 pygame.draw.rect(screen, (255, 0, 0), (x, y, SQUARE_SIZE, SQUARE_SIZE), 5)  # Red border
 
     if board.is_checkmate():
-        # If it's checkmate, highlight the king's square in red
         for square in chess.SQUARES:
             piece = board.piece_at(square)
             if piece and piece.piece_type == chess.KING and piece.color == board.turn:
@@ -162,50 +171,46 @@ def draw_win_message():
     else:
         return  # No message if the game is still ongoing
 
-    # Create the message surface
     message_surface = font.render(message, True, (0, 0, 0))  # Black text
     message_width = message_surface.get_width()
     message_height = message_surface.get_height()
 
-    # Positioning the message box and text
-    box_x = WIDTH // 2 - message_width // 2 - 10
-    box_y = HEIGHT // 2 - message_height // 2 - 10
+    box_x = SCREEN_WIDTH // 2 - message_width // 2 - 10
+    box_y = SCREEN_HEIGHT // 2 - message_height // 2 - 10
     box_width = message_width + 20
     box_height = message_height + 20
 
-    # Draw a white rectangle as the background for the message
     pygame.draw.rect(screen, (255, 255, 255), (box_x, box_y, box_width, box_height))
-
-    # Draw the message text on top of the rectangle
-    message_x = WIDTH // 2 - message_width // 2
-    message_y = HEIGHT // 2 - message_height // 2
+    message_x = SCREEN_WIDTH // 2 - message_width // 2
+    message_y = SCREEN_HEIGHT // 2 - message_height // 2
     screen.blit(message_surface, (message_x, message_y))
 
 # Main game loop
 clock = pygame.time.Clock()
 running = True
-selected_square = None  # Initialize the variable here
+selected_square = None
 valid_moves = []
-last_move = None  # Variable to store the last move
+last_move = None
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:  # Check if the ESC key is pressed
+            if event.key == pygame.K_ESCAPE:  # ESC key to exit
                 running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left-click
                 valid_moves = handle_click(event.pos)
 
-    screen.fill((200, 200, 200))  # Set background color
-    draw_chessboard_with_labels(last_move)  # Pass the last move to draw it
+    screen.fill((200, 200, 200))  
+    draw_chessboard_with_labels(last_move) 
     draw_pieces()
-    draw_valid_moves(valid_moves)  # Show valid move dots
-    draw_checkmate_indicator()  # Show check or checkmate
-    draw_win_message()
+    draw_valid_moves(valid_moves) 
+    draw_checkmate_indicator()  
+    draw_win_message() 
     pygame.display.flip()  # Update the screen
     clock.tick(FPS)
 
-pygame.quit()  # Close Pygame when the game ends
+pygame.quit()
+sys.exit()
